@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ -f vendor/bin/pint ]; then
+  npx lint-staged
+else
+  echo "Warning: Pint not installed. Run 'composer install' first."
+  exit 1
+fi
