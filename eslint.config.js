@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier/flat';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
@@ -9,6 +10,7 @@ import typescript from 'typescript-eslint';
 export default [
     js.configs.recommended,
     reactHooks.configs.flat.recommended,
+    jsxA11y.flatConfigs.recommended,
     ...typescript.configs.recommended,
     {
         ...react.configs.flat.recommended,
@@ -22,6 +24,8 @@ export default [
             'react/react-in-jsx-scope': 'off',
             'react/prop-types': 'off',
             'react/no-unescaped-entities': 'off',
+            'jsx-a11y/no-autofocus': 'off',
+            'jsx-a11y/tabindex-no-positive': 'off',
         },
         settings: {
             react: {
