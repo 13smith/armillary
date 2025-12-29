@@ -30,7 +30,7 @@ jobs:
           npm install
 
       - name: Generate Wayfinder Routes
-        run: php artisan wayfinder:generate
+        run: php artisan wayfinder:generate --with-form
 
       - name: Check PHP (Pint + PHPStan)
         run: composer lint:check
