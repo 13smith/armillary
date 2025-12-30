@@ -1,271 +1,287 @@
-# Solar System Feature Documentation
+# 3D Solar System Feature Documentation
 
-## Current State
+> **Branch**: `feature/3d-solar-system` (PR pending)
+> **Route**: `/3d-solar-system`
 
-**Status**: Not implemented - planning phase only
+## Overview
 
-The 3D solar system functionality has not been built. Only the foundational dependency has been added:
-
-- **astronomy-engine** v2.1.19 - Installed but not used
-
-No 3D rendering library (Three.js, Babylon.js, etc.) is installed.
+Interactive 3D visualization of the solar system using React Three Fiber and the `astronomy-engine` library for accurate planetary position calculations. Features real-time simulation, planetary alignments detection, and interactive controls.
 
 ---
 
-## Installed Dependency: astronomy-engine
-
-The `astronomy-engine` package provides astronomical calculations:
-
-### Capabilities
-- **Planetary positions**: Calculate real-time positions of planets relative to Earth or Sun
-- **Ephemeris data**: Get precise celestial coordinates (RA/Dec, ecliptic, horizontal)
-- **Orbital mechanics**: Compute orbital elements, perihelion, aphelion distances
-- **Time calculations**: Handle Julian dates, sidereal time, light-travel time corrections
-- **Rise/set times**: Calculate when celestial bodies rise, set, and culminate
-- **Eclipses & transits**: Predict lunar/solar eclipses and planetary transits
-- **Moon phases**: Calculate lunar phases and illumination
-- **Coordinate transforms**: Convert between equatorial, ecliptic, horizontal systems
-
-### Example Usage (Not Yet Implemented)
-```typescript
-import * as Astronomy from 'astronomy-engine';
-
-// Get current planet positions
-const time = Astronomy.MakeTime(new Date());
-const mars = Astronomy.GeoVector(Astronomy.Body.Mars, time, true);
-
-// Calculate heliocentric position (Sun-centered)
-const marsHelio = Astronomy.HelioVector(Astronomy.Body.Mars, time);
-// Returns { x, y, z } in AU (astronomical units)
-```
-
----
-
-## What Would Be Required
-
-### 1. 3D Rendering Library
-
-**Recommended**: Three.js + React Three Fiber
-
-```bash
-npm install three @react-three/fiber @react-three/drei
-npm install -D @types/three
-```
-
-- **three**: Core WebGL rendering
-- **@react-three/fiber**: React renderer for Three.js
-- **@react-three/drei**: Useful helpers (OrbitControls, Stars, etc.)
-
-### 2. Component Architecture
+## Architecture
 
 ```
 resources/js/
 ├── pages/
-│   └── solar-system.tsx              # Main page
-├── components/
-│   └── solar-system/
-│       ├── scene.tsx                 # Three.js scene setup
-│       ├── planet.tsx                # Planet mesh component
-│       ├── orbit-ring.tsx            # Orbital path visualization
-│       ├── sun.tsx                   # Sun with glow effect
-│       ├── controls.tsx              # Camera/time controls
-│       ├── info-panel.tsx            # Planet details sidebar
-│       └── time-slider.tsx           # Simulation time control
-├── hooks/
-│   ├── use-planet-positions.ts       # astronomy-engine integration
-│   └── use-solar-system-store.ts     # State management
-├── lib/
-│   └── astronomy/
-│       ├── planets.ts                # Planet data (radius, color, etc.)
-│       └── calculations.ts           # Wrapper for astronomy-engine
-└── types/
-    └── solar-system.ts               # TypeScript interfaces
+│   └── solar-system/index.tsx           # Page component
+├── components/solar-system/
+│   ├── solar-system-scene.tsx           # Main scene orchestrator
+│   ├── planet.tsx                        # Planet mesh + label
+│   ├── sun.tsx                           # Sun with glow effect
+│   ├── moon.tsx                          # Earth's moon
+│   ├── orbit-path.tsx                    # Orbital ellipse visualization
+│   ├── controls-panel.tsx                # Time/display controls UI
+│   ├── planet-info-card.tsx              # Selected planet details
+│   ├── alignments-panel.tsx              # Upcoming alignments list
+│   └── alignment-indicator.tsx           # Visual line between aligned planets
+├── hooks/solar-system/
+│   ├── use-planet-positions.ts           # Planet + moon position calculations
+│   ├── use-alignments.ts                 # Planetary alignment detection
+│   └── use-simulation-time.ts            # Time simulation control
+└── lib/solar-system/
+    ├── astronomy.ts                      # astronomy-engine wrapper functions
+    ├── constants.ts                      # Planet data + scale factors
+    └── types.ts                          # TypeScript interfaces
 ```
 
-### 3. Planet Data Model
+---
 
-```typescript
-// lib/astronomy/planets.ts
-export interface PlanetData {
-  name: string;
-  body: Astronomy.Body;
-  radius: number;          // km
-  orbitRadius: number;     // AU
-  color: string;
-  rotationPeriod: number;  // Earth days
-  orbitalPeriod: number;   // Earth days
-  tilt: number;            // degrees
-  texture?: string;        // optional texture path
-}
+## Core Dependencies
 
-export const PLANETS: PlanetData[] = [
-  { name: 'Mercury', body: Astronomy.Body.Mercury, radius: 2439, orbitRadius: 0.387, color: '#b5b5b5', ... },
-  { name: 'Venus',   body: Astronomy.Body.Venus,   radius: 6052, orbitRadius: 0.723, color: '#e6c229', ... },
-  { name: 'Earth',   body: Astronomy.Body.Earth,   radius: 6371, orbitRadius: 1.000, color: '#6b93d6', ... },
-  { name: 'Mars',    body: Astronomy.Body.Mars,    radius: 3390, orbitRadius: 1.524, color: '#c1440e', ... },
-  { name: 'Jupiter', body: Astronomy.Body.Jupiter, radius: 69911, orbitRadius: 5.203, color: '#d8ca9d', ... },
-  { name: 'Saturn',  body: Astronomy.Body.Saturn,  radius: 58232, orbitRadius: 9.537, color: '#f4d59e', ... },
-  { name: 'Uranus',  body: Astronomy.Body.Uranus,  radius: 25362, orbitRadius: 19.19, color: '#d1e7e7', ... },
-  { name: 'Neptune', body: Astronomy.Body.Neptune, radius: 24622, orbitRadius: 30.07, color: '#5b5ddf', ... },
-];
+| Package | Purpose |
+|---------|---------|
+| `three` | 3D rendering engine |
+| `@react-three/fiber` | React renderer for Three.js |
+| `@react-three/drei` | Helpers: OrbitControls, Stars, Line, Html |
+| `astronomy-engine` | Astronomical calculations (JPL ephemeris data) |
+
+---
+
+## Data Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     SolarSystemScene                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │ State:       │  │ Hooks:       │  │ Components:          │  │
+│  │ - date       │→ │ usePlanet-   │→ │ - Sun               │  │
+│  │ - isPlaying  │  │   Positions  │  │ - Planet (×8)       │  │
+│  │ - speed      │  │ useAlignments│  │ - Moon              │  │
+│  │ - showOrbits │  └──────────────┘  │ - OrbitPath (×8)    │  │
+│  │ - showLabels │                    │ - AlignmentIndicator│  │
+│  │ - selected   │                    └──────────────────────┘  │
+│  └──────────────┘                                               │
+│         ↓                                                       │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ SimulationController (useFrame loop)                      │  │
+│  │ - Advances date based on speed when playing               │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### 4. Position Calculation Hook
+---
 
-```typescript
-// hooks/use-planet-positions.ts
-import * as Astronomy from 'astronomy-engine';
-import { useMemo } from 'react';
+## Key Components
 
-export function usePlanetPositions(date: Date) {
-  return useMemo(() => {
-    const time = Astronomy.MakeTime(date);
+### 1. SolarSystemScene (`solar-system-scene.tsx`)
 
-    return PLANETS.map(planet => {
-      const pos = Astronomy.HelioVector(planet.body, time);
-      return {
-        ...planet,
-        position: {
-          x: pos.x,  // AU
-          y: pos.z,  // Swap Y/Z for Three.js coordinate system
-          z: pos.y,
-        },
-      };
-    });
-  }, [date]);
-}
-```
-
-### 5. Main Scene Component
+Main orchestrator managing:
+- **State**: date, isPlaying, speed, showOrbits, showLabels, selectedPlanet
+- **Canvas setup**: Camera at `[0, 50, 80]`, 60° FOV
+- **UI overlays**: ControlsPanel, PlanetInfoCard, AlignmentsPanel
 
 ```tsx
-// components/solar-system/scene.tsx
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
-import { Sun } from './sun';
-import { Planet } from './planet';
-import { OrbitRing } from './orbit-ring';
-import { usePlanetPositions } from '@/hooks/use-planet-positions';
+<Canvas camera={{ position: [0, 50, 80], fov: 60 }}>
+  <Suspense fallback={null}>
+    <SceneContent ... />
+  </Suspense>
+</Canvas>
+```
 
-export function SolarSystemScene({ date }: { date: Date }) {
-  const planets = usePlanetPositions(date);
-  const scale = 50; // Scale factor for visualization
+### 2. SimulationController
 
-  return (
-    <Canvas camera={{ position: [0, 50, 100], fov: 60 }}>
-      <ambientLight intensity={0.1} />
-      <Stars radius={300} depth={60} count={5000} factor={7} />
+Runs in the render loop via `useFrame`. Advances simulation time:
 
-      <Sun />
+```tsx
+useFrame((_, delta) => {
+  if (!isPlaying) return;
+  const msPerFrame = speed * 24 * 60 * 60 * 1000 * delta;
+  const newDate = new Date(dateRef.current.getTime() + msPerFrame);
+  dateRef.current = newDate;
+  onDateChange(newDate);
+});
+```
 
-      {planets.map(planet => (
-        <group key={planet.name}>
-          <OrbitRing radius={planet.orbitRadius * scale} />
-          <Planet
-            name={planet.name}
-            position={[
-              planet.position.x * scale,
-              planet.position.y * scale,
-              planet.position.z * scale,
-            ]}
-            radius={Math.log(planet.radius) * 0.5} // Log scale for visibility
-            color={planet.color}
-          />
-        </group>
-      ))}
+### 3. Planet Component
 
-      <OrbitControls enablePan enableZoom enableRotate />
-    </Canvas>
-  );
+Renders each planet as a sphere with:
+- Rotation animation (`useFrame`)
+- Selection ring when clicked
+- HTML label overlay (via `@react-three/drei`)
+
+```tsx
+<sphereGeometry args={[radius, 32, 32]} />
+<meshStandardMaterial color={data.color} roughness={0.8} metalness={0.2} />
+```
+
+### 4. Sun Component
+
+Central light source with glow effect:
+
+```tsx
+<pointLight position={[0, 0, 0]} intensity={2} distance={200} />
+<mesh>
+  <sphereGeometry args={[2.5, 32, 32]} />
+  <meshBasicMaterial color="#ffd700" />
+</mesh>
+<mesh> {/* Glow */}
+  <sphereGeometry args={[3, 32, 32]} />
+  <meshBasicMaterial color="#ffaa00" transparent opacity={0.3} />
+</mesh>
+```
+
+### 5. OrbitPath Component
+
+Calculates and renders orbital paths using `getOrbitPoints`:
+
+```tsx
+const points = getOrbitPoints(body, 180); // 180 points around orbit
+<Line points={points} color={color} lineWidth={1} opacity={0.4} />
+```
+
+---
+
+## Astronomy Calculations (`lib/solar-system/astronomy.ts`)
+
+### getPlanetPosition
+
+Converts `astronomy-engine` heliocentric vectors to Three.js coordinates:
+
+```typescript
+export function getPlanetPosition(body: Body, date: Date) {
+  const time = Astronomy.MakeTime(date);
+  const vec = Astronomy.HelioVector(body, time);
+  return {
+    x: vec.x * SCALE.distanceMultiplier,  // 8x scale
+    y: vec.z * SCALE.distanceMultiplier,  // Swap Y/Z for Three.js
+    z: -vec.y * SCALE.distanceMultiplier,
+  };
 }
 ```
 
-### 6. Backend Route (Optional)
+### getMoonPosition
 
-If planet data needs to be server-rendered:
+Calculates Moon position relative to Earth using `GeoMoon`:
+
+```typescript
+const moon = Astronomy.GeoMoon(time);
+return {
+  x: earthPosition.x + moon.x * moonScale,
+  y: earthPosition.y + moon.z * moonScale,
+  z: earthPosition.z - moon.y * moonScale,
+};
+```
+
+### findUpcomingAlignments
+
+Detects when planets align within 5° (conjunction):
+
+```typescript
+for (let day = 0; day < daysAhead; day++) {
+  // Calculate angular separation between all planet pairs
+  // If < 5°, record as alignment
+}
+```
+
+---
+
+## Scale Constants (`lib/solar-system/constants.ts`)
+
+```typescript
+export const SCALE = {
+  distanceMultiplier: 8,      // AU to scene units
+  sunRadius: 2.5,             // Scene units
+  planetSizeMultiplier: 0.4,  // Relative planet scaling
+  moonOrbitRadius: 0.3,       // Moon distance from Earth
+  moonSize: 0.08,             // Moon radius
+};
+```
+
+### Planet Data
+
+All 8 planets defined with:
+- `name`, `body` (astronomy-engine enum)
+- `color`, `radius` (relative to Earth)
+- `orbitColor`, `description`
+
+---
+
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| **Real-time Simulation** | Time advances at configurable speeds (1x, 10x, 100x, 1000x) |
+| **Accurate Positions** | Uses JPL ephemeris data via astronomy-engine |
+| **Orbital Paths** | Toggle visibility of orbital ellipses |
+| **Planet Labels** | Toggle HTML labels above planets |
+| **Planet Selection** | Click planet to show info card with distance/size |
+| **Moon Tracking** | Earth's moon rendered and tracked |
+| **Alignment Detection** | Predicts planetary conjunctions 90 days ahead |
+| **Camera Controls** | OrbitControls for pan/zoom/rotate |
+| **Star Field** | Background stars via `@react-three/drei` |
+
+---
+
+## UI Panels
+
+### ControlsPanel (top-left)
+- Current date display
+- Play/Pause button
+- Reset to today
+- Speed selector (1x/10x/100x/1000x)
+- Toggle: orbits, labels
+
+### PlanetInfoCard (top-right, when selected)
+- Planet name + color indicator
+- Description
+- Distance from Sun (AU)
+- Relative size to Earth
+
+### AlignmentsPanel (bottom-left)
+- List of next 5 upcoming planetary alignments
+- Shows planet pair + date
+
+---
+
+## Route Configuration
 
 ```php
 // routes/web.php
-Route::get('/solar-system', function () {
-    return Inertia::render('SolarSystem', [
-        'initialDate' => now()->toISOString(),
-    ]);
+Route::get('3d-solar-system', function () {
+    return Inertia::render('solar-system/index');
 })->name('solar-system');
 ```
 
 ---
 
-## State Management
+## Coordinate System
 
-Recommended state to track:
+| astronomy-engine | Three.js | Description |
+|-----------------|----------|-------------|
+| x | x | Horizontal (toward vernal equinox) |
+| y | -z | Into screen (ecliptic plane) |
+| z | y | Vertical (up) |
 
-```typescript
-interface SolarSystemState {
-  // Time
-  simulationDate: Date;
-  timeSpeed: number;      // 1 = real-time, 365 = 1 year/second
-  isPaused: boolean;
+The swap ensures the ecliptic plane is horizontal in the 3D view.
 
-  // Camera
-  followPlanet: string | null;
-  cameraDistance: number;
+---
 
-  // UI
-  selectedPlanet: string | null;
-  showOrbits: boolean;
-  showLabels: boolean;
-  scaleMode: 'realistic' | 'exaggerated';
-}
+## Performance Considerations
+
+1. **Memoization**: `usePlanetPositions` and `useAlignments` memoize calculations
+2. **Suspense**: Scene wrapped in Suspense for async loading
+3. **Frame throttling**: SimulationController limits updates to ~60fps
+4. **Orbit caching**: OrbitPath points calculated once per body
+
+---
+
+## Test Coverage
+
+```php
+// tests/Feature/SolarSystemTest.php
+it('can view the solar system page', function () {
+    $response = $this->get('/3d-solar-system');
+    $response->assertStatus(200);
+});
 ```
-
----
-
-## Features to Consider
-
-1. **Time Controls**: Play/pause, speed slider, date picker
-2. **Camera Modes**: Free orbit, follow planet, top-down view
-3. **Planet Selection**: Click to select, show info panel
-4. **Scale Toggle**: Realistic vs exaggerated planet sizes
-5. **Orbit Paths**: Toggle orbital ellipse visibility
-6. **Labels**: Planet name labels
-7. **Moons**: Major moons for each planet
-8. **Asteroid Belt**: Particle system between Mars/Jupiter
-9. **Textures**: NASA planetary texture maps
-10. **Lighting**: Realistic sun-based lighting with shadows
-
----
-
-## File Checklist
-
-To implement the feature, create these files:
-
-- [ ] `resources/js/pages/solar-system.tsx`
-- [ ] `resources/js/components/solar-system/scene.tsx`
-- [ ] `resources/js/components/solar-system/planet.tsx`
-- [ ] `resources/js/components/solar-system/sun.tsx`
-- [ ] `resources/js/components/solar-system/orbit-ring.tsx`
-- [ ] `resources/js/components/solar-system/controls.tsx`
-- [ ] `resources/js/components/solar-system/info-panel.tsx`
-- [ ] `resources/js/hooks/use-planet-positions.ts`
-- [ ] `resources/js/lib/astronomy/planets.ts`
-- [ ] `resources/js/lib/astronomy/calculations.ts`
-- [ ] `resources/js/types/solar-system.ts`
-- [ ] `routes/web.php` - Add route
-
----
-
-## Dependencies to Install
-
-```bash
-npm install three @react-three/fiber @react-three/drei
-npm install -D @types/three
-```
-
----
-
-## References
-
-- [astronomy-engine docs](https://github.com/cosinekitty/astronomy)
-- [React Three Fiber docs](https://docs.pmnd.rs/react-three-fiber)
-- [Three.js docs](https://threejs.org/docs/)
-- [NASA texture maps](https://nasa3d.arc.nasa.gov/images)
