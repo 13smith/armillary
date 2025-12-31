@@ -1,9 +1,4 @@
-interface Alignment {
-    body1: string;
-    body2: string;
-    date: Date;
-    angleDeg: number;
-}
+import type { Alignment } from '@/lib/solar-system/types';
 
 interface AlignmentsPanelProps {
     alignments: Alignment[];
