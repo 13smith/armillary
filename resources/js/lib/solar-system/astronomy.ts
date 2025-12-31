@@ -1,6 +1,6 @@
 import type { Body } from 'astronomy-engine';
 import * as Astronomy from 'astronomy-engine';
-import { PLANETS, SCALE } from './constants';
+import { AU_TO_KM, PLANETS, SCALE } from './constants';
 import type { MoonPosition, PlanetPosition } from './types';
 
 export function getPlanetPosition(
@@ -8,11 +8,15 @@ export function getPlanetPosition(
     date: Date,
 ): { x: number; y: number; z: number } {
     const time = Astronomy.MakeTime(date);
-    const vec = Astronomy.HelioVector(body, time);
+    const vec = Astronomy.HelioVector(body, time); // Returns position in AU
+
+    // Convert AU to 3D units using realistic scale
+    const auTo3D = AU_TO_KM / SCALE.kmPerUnit;
+
     return {
-        x: vec.x * SCALE.distanceMultiplier,
-        y: vec.z * SCALE.distanceMultiplier,
-        z: -vec.y * SCALE.distanceMultiplier,
+        x: vec.x * auTo3D,
+        y: vec.z * auTo3D,
+        z: -vec.y * auTo3D,
     };
 }
 

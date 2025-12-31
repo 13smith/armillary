@@ -1,4 +1,3 @@
-import { SCALE } from '@/lib/solar-system/constants';
 import type { PlanetData } from '@/lib/solar-system/types';
 import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
@@ -28,12 +27,12 @@ export function Planet({
         }
     });
 
-    const radius = data.radius * SCALE.planetSizeMultiplier;
+    const radius = data.radius;
 
     return (
         <group position={position}>
             <mesh ref={meshRef} onClick={onClick}>
-                <sphereGeometry args={[radius, 32, 32]} />
+                <sphereGeometry args={[radius, 64, 64]} />
                 <meshStandardMaterial
                     color={data.color}
                     roughness={0.8}

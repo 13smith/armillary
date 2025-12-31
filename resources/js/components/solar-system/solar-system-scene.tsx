@@ -144,8 +144,8 @@ function SceneContent({
                 enablePan={true}
                 enableZoom={true}
                 enableRotate={true}
-                minDistance={10}
-                maxDistance={300}
+                minDistance={50}
+                maxDistance={20000}
             />
         </>
     );
@@ -204,7 +204,7 @@ export function SolarSystemScene() {
 
             <AlignmentsPanel alignments={alignments} currentDate={date} />
 
-            <Canvas camera={{ position: [0, 50, 80], fov: 60 }}>
+            <Canvas camera={{ position: [0, 500, 1000], fov: 60 }}>
                 <Suspense fallback={null}>
                     <SceneContent
                         date={date}
