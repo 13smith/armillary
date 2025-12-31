@@ -26,7 +26,7 @@ export interface Alignment {
     body1: string;
     body2: string;
     date: Date;
-    type: 'conjunction' | 'opposition';
+    angleDeg: number;
 }
 
 export interface SimulationState {
