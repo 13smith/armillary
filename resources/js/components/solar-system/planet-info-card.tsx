@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { SCALE } from '@/lib/solar-system/constants';
 import type { PlanetData, PlanetPosition } from '@/lib/solar-system/types';
 import { X } from 'lucide-react';
 
@@ -14,7 +15,8 @@ export function PlanetInfoCard({
     onClose,
 }: PlanetInfoCardProps) {
     const distanceFromSun =
-        Math.sqrt(position.x ** 2 + position.y ** 2 + position.z ** 2) / 8;
+        Math.sqrt(position.x ** 2 + position.y ** 2 + position.z ** 2) /
+        SCALE.distanceMultiplier;
 
     return (
         <div className="absolute top-4 right-4 z-10 w-64 rounded-lg bg-black/60 p-4 backdrop-blur-sm">
