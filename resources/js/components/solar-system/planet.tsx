@@ -32,7 +32,7 @@ export function Planet({
     return (
         <group position={position}>
             <mesh ref={meshRef} onClick={onClick}>
-                <sphereGeometry args={[radius, 64, 64]} />
+                <sphereGeometry args={[radius, 32, 32]} />
                 <meshStandardMaterial
                     color={data.color}
                     roughness={0.8}
