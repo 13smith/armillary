@@ -101,7 +101,7 @@ function SceneContent({
                 factor={4}
                 saturation={0}
                 fade
-                speed={1}
+                speed={0}
             />
 
             <Sun />
@@ -179,7 +179,7 @@ export function SolarSystemScene() {
         setDate(now);
     }, []);
 
-    const { planets } = usePlanetPositions(date);
+    const { planets, moon } = usePlanetPositions(date);
     const alignments = useAlignments(date);
 
     const selectedPlanetData = PLANETS.find((p) => p.name === selectedPlanet);
