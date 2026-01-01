@@ -17,16 +17,12 @@ export function Sun() {
             <pointLight
                 position={[0, 0, 0]}
                 intensity={2}
-                distance={200}
+                distance={1000}
                 decay={0.5}
             />
             <mesh ref={meshRef}>
                 <sphereGeometry args={[SCALE.sunRadius, 32, 32]} />
                 <meshBasicMaterial color="#ffd700" />
-            </mesh>
-            <mesh>
-                <sphereGeometry args={[SCALE.sunRadius * 1.2, 32, 32]} />
-                <meshBasicMaterial color="#ffaa00" transparent opacity={0.3} />
             </mesh>
         </group>
     );
