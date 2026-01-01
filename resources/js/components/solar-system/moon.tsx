@@ -1,7 +1,7 @@
 import { SCALE } from '@/lib/solar-system/constants';
 import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import type { Mesh } from 'three';
 
 interface MoonProps {
@@ -9,7 +9,7 @@ interface MoonProps {
     showLabel: boolean;
 }
 
-export function Moon({ position, showLabel }: MoonProps) {
+export const Moon = memo(function Moon({ position, showLabel }: MoonProps) {
     const meshRef = useRef<Mesh>(null);
 
     useFrame((_, delta) => {
@@ -42,4 +42,4 @@ export function Moon({ position, showLabel }: MoonProps) {
             )}
         </group>
     );
-}
+});

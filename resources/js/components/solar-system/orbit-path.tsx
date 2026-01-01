@@ -1,14 +1,17 @@
 import { getOrbitPoints } from '@/lib/solar-system/astronomy';
 import { Line } from '@react-three/drei';
 import type { Body } from 'astronomy-engine';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 interface OrbitPathProps {
     body: Body;
     color: string;
 }
 
-export function OrbitPath({ body, color }: OrbitPathProps) {
+export const OrbitPath = memo(function OrbitPath({
+    body,
+    color,
+}: OrbitPathProps) {
     const points = useMemo(() => {
         const orbitPoints = getOrbitPoints(body, 180);
         return orbitPoints.map(
@@ -25,4 +28,4 @@ export function OrbitPath({ body, color }: OrbitPathProps) {
             opacity={0.4}
         />
     );
-}
+});

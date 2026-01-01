@@ -1,7 +1,7 @@
 import type { PlanetData } from '@/lib/solar-system/types';
 import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import type { Mesh } from 'three';
 
 interface PlanetProps {
@@ -12,7 +12,7 @@ interface PlanetProps {
     onClick: () => void;
 }
 
-export function Planet({
+export const Planet = memo(function Planet({
     data,
     position,
     isSelected,
@@ -65,4 +65,4 @@ export function Planet({
             )}
         </group>
     );
-}
+});
