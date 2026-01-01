@@ -2,9 +2,9 @@ import { Body } from 'astronomy-engine';
 import type { PlanetData } from './types';
 
 // Base scale: sun radius in 3D units
-const SUN_RADIUS_3D = 2.5;
+const SUN_RADIUS_3D = 1.0;
 const SUN_RADIUS_KM = 696000;
-const KM_PER_UNIT = SUN_RADIUS_KM / SUN_RADIUS_3D; // 278,400 km per unit
+const KM_PER_UNIT = SUN_RADIUS_KM / SUN_RADIUS_3D; // 696,000 km per unit
 
 // Real radii in kilometers
 const REAL_RADII_KM = {
