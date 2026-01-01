@@ -8,7 +8,7 @@ import type {
 } from '@/lib/solar-system/types';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Suspense, useCallback, useRef, useState } from 'react';
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { AlignmentIndicator } from './alignment-indicator';
 import { AlignmentsPanel } from './alignments-panel';
 import { ControlsPanel } from './controls-panel';
@@ -79,9 +79,14 @@ function SceneContent({
     moon,
     alignments,
 }: SceneContentProps) {
-    const currentAlignments = alignments.filter(
-        (a) =>
-            Math.abs(a.date.getTime() - date.getTime()) < 24 * 60 * 60 * 1000,
+    const dateTime = date.getTime();
+    const currentAlignments = useMemo(
+        () =>
+            alignments.filter(
+                (a) =>
+                    Math.abs(a.date.getTime() - dateTime) < 24 * 60 * 60 * 1000,
+            ),
+        [alignments, dateTime],
     );
 
     return (
