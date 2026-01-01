@@ -4,11 +4,13 @@ import { PLANETS } from '@/lib/solar-system/constants';
 import type {
     Alignment,
     MoonPosition,
+    PlanetData,
     PlanetPosition,
 } from '@/lib/solar-system/types';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
+
 import { AlignmentIndicator } from './alignment-indicator';
 import { AlignmentsPanel } from './alignments-panel';
 import { ControlsPanel } from './controls-panel';
@@ -17,6 +19,11 @@ import { OrbitPath } from './orbit-path';
 import { Planet } from './planet';
 import { PlanetInfoCard } from './planet-info-card';
 import { Sun } from './sun';
+
+// Pre-compute Map for O(1) planet data lookups
+const PLANET_DATA_BY_NAME = new Map<string, PlanetData>(
+    PLANETS.map((p) => [p.name, p]),
+);
 
 interface SimulationControllerProps {
     isPlaying: boolean;
@@ -89,6 +96,12 @@ function SceneContent({
         [alignments, dateTime],
     );
 
+    // Memoized Map for O(1) planet position lookups
+    const planetPositionMap = useMemo(
+        () => new Map(planets.map((p) => [p.name, p])),
+        [planets],
+    );
+
     return (
         <>
             <SimulationController
@@ -121,7 +134,7 @@ function SceneContent({
                 ))}
 
             {planets.map((pos) => {
-                const planetData = PLANETS.find((p) => p.name === pos.name)!;
+                const planetData = PLANET_DATA_BY_NAME.get(pos.name)!;
                 return (
                     <Planet
                         key={pos.name}
@@ -141,8 +154,8 @@ function SceneContent({
             <Moon position={[moon.x, moon.y, moon.z]} showLabel={showLabels} />
 
             {currentAlignments.map((alignment, i) => {
-                const pos1 = planets.find((p) => p.name === alignment.body1);
-                const pos2 = planets.find((p) => p.name === alignment.body2);
+                const pos1 = planetPositionMap.get(alignment.body1);
+                const pos2 = planetPositionMap.get(alignment.body2);
                 if (!pos1 || !pos2) return null;
                 return (
                     <AlignmentIndicator
@@ -187,10 +200,18 @@ export function SolarSystemScene() {
     const { planets, moon } = usePlanetPositions(date);
     const alignments = useAlignments(date);
 
-    const selectedPlanetData = PLANETS.find((p) => p.name === selectedPlanet);
-    const selectedPlanetPosition = planets.find(
-        (p) => p.name === selectedPlanet,
+    // Memoized Map for O(1) lookups in parent component
+    const planetPositionMap = useMemo(
+        () => new Map(planets.map((p) => [p.name, p])),
+        [planets],
     );
+
+    const selectedPlanetData = selectedPlanet
+        ? PLANET_DATA_BY_NAME.get(selectedPlanet)
+        : undefined;
+    const selectedPlanetPosition = selectedPlanet
+        ? planetPositionMap.get(selectedPlanet)
+        : undefined;
 
     return (
         <div className="relative h-full w-full bg-black">
