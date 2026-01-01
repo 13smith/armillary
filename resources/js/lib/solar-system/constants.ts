@@ -23,10 +23,14 @@ const REAL_RADII_KM = {
 // Astronomical Unit in kilometers
 export const AU_TO_KM = 149597870.7;
 
+// Visual exaggeration for planet sizes (for visibility while maintaining realistic orbits)
+const PLANET_SIZE_EXAGGERATION = 200;
+
 export const SCALE = {
     sunRadius: SUN_RADIUS_3D,
     kmPerUnit: KM_PER_UNIT,
-    moonSize: REAL_RADII_KM.moon / KM_PER_UNIT,
+    planetSizeExaggeration: PLANET_SIZE_EXAGGERATION,
+    moonSize: (REAL_RADII_KM.moon / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
     moonOrbitRadius: (0.00257 * AU_TO_KM) / KM_PER_UNIT, // Earth-Moon distance
 };
 
@@ -35,7 +39,8 @@ export const PLANETS: PlanetData[] = [
         name: 'Mercury',
         body: Body.Mercury,
         color: '#b5b5b5',
-        radius: REAL_RADII_KM.mercury / KM_PER_UNIT,
+        radius:
+            (REAL_RADII_KM.mercury / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
         orbitColor: '#666666',
         description: 'Smallest planet, closest to the Sun',
     },
@@ -43,7 +48,7 @@ export const PLANETS: PlanetData[] = [
         name: 'Venus',
         body: Body.Venus,
         color: '#e6c229',
-        radius: REAL_RADII_KM.venus / KM_PER_UNIT,
+        radius: (REAL_RADII_KM.venus / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
         orbitColor: '#998833',
         description: 'Hottest planet, rotates backwards',
     },
@@ -51,7 +56,7 @@ export const PLANETS: PlanetData[] = [
         name: 'Earth',
         body: Body.Earth,
         color: '#2d5f8a',
-        radius: REAL_RADII_KM.earth / KM_PER_UNIT,
+        radius: (REAL_RADII_KM.earth / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
         orbitColor: '#446688',
         description: 'Our home, the blue marble',
     },
@@ -59,7 +64,7 @@ export const PLANETS: PlanetData[] = [
         name: 'Mars',
         body: Body.Mars,
         color: '#c1440e',
-        radius: REAL_RADII_KM.mars / KM_PER_UNIT,
+        radius: (REAL_RADII_KM.mars / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
         orbitColor: '#884422',
         description: 'The red planet, has the largest volcano',
     },
@@ -67,7 +72,8 @@ export const PLANETS: PlanetData[] = [
         name: 'Jupiter',
         body: Body.Jupiter,
         color: '#d8ca9d',
-        radius: REAL_RADII_KM.jupiter / KM_PER_UNIT,
+        radius:
+            (REAL_RADII_KM.jupiter / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
         orbitColor: '#998866',
         description: 'Largest planet, Great Red Spot storm',
     },
@@ -75,7 +81,7 @@ export const PLANETS: PlanetData[] = [
         name: 'Saturn',
         body: Body.Saturn,
         color: '#f4d59e',
-        radius: REAL_RADII_KM.saturn / KM_PER_UNIT,
+        radius: (REAL_RADII_KM.saturn / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
         orbitColor: '#aa9955',
         description: 'Famous for its rings',
     },
@@ -83,7 +89,7 @@ export const PLANETS: PlanetData[] = [
         name: 'Uranus',
         body: Body.Uranus,
         color: '#d1e7e7',
-        radius: REAL_RADII_KM.uranus / KM_PER_UNIT,
+        radius: (REAL_RADII_KM.uranus / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
         orbitColor: '#668888',
         description: 'Ice giant, rotates on its side',
     },
@@ -91,7 +97,8 @@ export const PLANETS: PlanetData[] = [
         name: 'Neptune',
         body: Body.Neptune,
         color: '#5b5ddf',
-        radius: REAL_RADII_KM.neptune / KM_PER_UNIT,
+        radius:
+            (REAL_RADII_KM.neptune / KM_PER_UNIT) * PLANET_SIZE_EXAGGERATION,
         orbitColor: '#4444aa',
         description: 'Windiest planet, deep blue color',
     },

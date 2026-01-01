@@ -51,7 +51,12 @@ export function PlanetInfoCard({
                 <div className="flex justify-between">
                     <span>Relative size:</span>
                     <span className="text-white">
-                        {(planet.radius / 0.0229).toFixed(2)}x Earth
+                        {(
+                            planet.radius /
+                            SCALE.planetSizeExaggeration /
+                            (6371 / SCALE.kmPerUnit)
+                        ).toFixed(2)}
+                        x Earth
                     </span>
                 </div>
             </div>
