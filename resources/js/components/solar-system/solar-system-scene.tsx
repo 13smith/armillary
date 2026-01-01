@@ -1,6 +1,11 @@
 import { useAlignments } from '@/hooks/solar-system/use-alignments';
 import { usePlanetPositions } from '@/hooks/solar-system/use-planet-positions';
 import { PLANETS } from '@/lib/solar-system/constants';
+import type {
+    Alignment,
+    MoonPosition,
+    PlanetPosition,
+} from '@/lib/solar-system/types';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Suspense, useCallback, useRef, useState } from 'react';
@@ -55,6 +60,9 @@ interface SceneContentProps {
     speed: number;
     onDateChange: (date: Date) => void;
     dateRef: React.MutableRefObject<Date>;
+    planets: PlanetPosition[];
+    moon: MoonPosition;
+    alignments: Alignment[];
 }
 
 function SceneContent({
@@ -67,10 +75,10 @@ function SceneContent({
     speed,
     onDateChange,
     dateRef,
+    planets,
+    moon,
+    alignments,
 }: SceneContentProps) {
-    const { planets, moon } = usePlanetPositions(date);
-    const alignments = useAlignments(date);
-
     const currentAlignments = alignments.filter(
         (a) =>
             Math.abs(a.date.getTime() - date.getTime()) < 24 * 60 * 60 * 1000,
@@ -216,6 +224,9 @@ export function SolarSystemScene() {
                         speed={speed}
                         onDateChange={handleDateChange}
                         dateRef={dateRef}
+                        planets={planets}
+                        moon={moon}
+                        alignments={alignments}
                     />
                 </Suspense>
             </Canvas>
